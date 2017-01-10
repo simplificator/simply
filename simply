@@ -1,0 +1,193 @@
+#!/usr/bin/env ruby
+
+#
+# Simply lets you perform all common tasks for this project from one convenient place
+#
+# To add a new Command do the following:
+# 1. Define a new class that inherits from Command
+# 2. Override the methods `.command_string`, `#usage`, `#perform`
+# 3. Add new class to the Simply::COMMAND_CLASSES array
+#
+
+require 'fileutils'
+
+class Command
+  def initialize(arguments)
+    @arguments = arguments
+  end
+
+  def self.command_string
+    raise 'Implement this in subclass'
+  end
+
+  def usage
+    raise 'Implement this in subclass'
+  end
+
+  def perform
+    raise 'Implement this in subclass'
+  end
+
+  protected
+
+  attr_reader :arguments
+end
+
+class HelpCommand < Command
+  def self.command_string
+    'help'
+  end
+
+  def usage
+    "help\t\t\tDisplays this message"
+  end
+
+  def perform
+    puts 'Simply lets you perform all common tasks for this project from one convenient place:'
+    puts
+    puts 'Usage: ./simply <command>'
+    puts
+    puts 'Available commands:'
+
+    Simply::COMMAND_CLASSES.each do |command_class|
+      puts command_class.new(arguments).usage
+    end
+  end
+end
+
+class SetupCommand < Command
+  def self.command_string
+    'setup'
+  end
+
+  def usage
+    "setup\t\t\tSets up all the project's dependencies. Assumed: Running on OS X, postgres, rbenv installed."
+  end
+
+  def perform
+    install_dependencies
+    bundle_install
+    database_yml
+    setup_database
+
+    puts
+    puts 'Setup complete. As a next step, build the project with `./simply build` if necessary and run the tests: `./simply test`'
+  end
+
+  private
+
+  def install_dependencies
+    # In case your project has external dependencies (non-gem), implement
+    # the installation commands here (e.g. via `brew`)
+  end
+
+  def bundle_install
+    system('bundle install')
+  end
+
+  def database_yml
+    unless File.exists? 'config/database.yml'
+      FileUtils.cp 'config/database.example.yml', 'config/database.yml'
+      puts "Configure your database in 'config/database.yml', then re-run this command."
+    end
+  end
+
+  def setup_database
+    system('./bin/rake db:create')
+    system('./bin/rake db:schema:load')
+    system('RAILS_ENV=test ./bin/rake db:create')
+    system('RAILS_ENV=test ./bin/rake db:schema:load')
+    system('./bin/rake db:seed')
+  end
+end
+
+class BuildCommand < Command
+  def self.command_string
+    'build'
+  end
+
+  def usage
+    "build\t\t\tBuilds the project (compiling and all other necessary steps before running)"
+  end
+
+  def perform
+    # In case your projects needs a build step, implement here!
+    puts 'No build step is required for this project.'
+  end
+end
+
+class TestCommand < Command
+  def self.command_string
+    'test'
+  end
+
+  def usage
+    "test\t\t\tRuns the tests for this project"
+  end
+
+  def perform
+    system('rspec')
+  end
+end
+
+class RunCommand < Command
+  def self.command_string
+    'run'
+  end
+
+  def usage
+    "run\t\t\tRuns the project"
+  end
+
+  def perform
+    system('bin/rails s')
+  end
+end
+
+class DeployCommand < Command
+  def self.command_string
+    'deploy'
+  end
+
+  def usage
+    "deploy <environment>\tDeploys the project on a specific environment"
+  end
+
+  def perform
+    environment = arguments.shift
+
+    puts "Deploying to #{environment}..."
+    system("cap #{environment} deploy")
+  end
+end
+
+class Simply
+  COMMAND_CLASSES = [
+    HelpCommand,
+    SetupCommand,
+    BuildCommand,
+    TestCommand,
+    RunCommand,
+    DeployCommand
+  ]
+
+  def initialize(arguments)
+    @arguments = arguments
+  end
+
+  def perform
+    command_string = arguments.shift
+
+    command = COMMAND_CLASSES.find do |command_class|
+      command_class.command_string == command_string
+    end || HelpCommand
+
+    command.new(arguments).perform
+  end
+
+  private
+
+  attr_reader :arguments
+end
+
+Simply.new(ARGV).perform
