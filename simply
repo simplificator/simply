@@ -28,6 +28,10 @@ class Command
     raise 'Implement this in subclass'
   end
 
+  def executable_path
+    "#{Simply::COMMAND_EXECUTABLE_DIRECTORY}#{self.class.command_string}"
+  end
+
   protected
 
   attr_reader :arguments
@@ -53,6 +57,58 @@ class HelpCommand < Command
       puts command_class.new(arguments).usage
     end
   end
+
+  def executable_path
+    nil # this command has no corresponding executable file
+  end
+end
+
+class InitCommand < Command
+  def self.command_string
+    'init'
+  end
+
+  def usage
+    "init\t\t\tInitializes this project for use with the simply script"
+  end
+
+  def perform
+    system("mkdir -p #{Simply::COMMAND_EXECUTABLE_DIRECTORY}")
+
+    Simply::COMMAND_CLASSES.each do |command|
+      executable_path = command.new([]).executable_path
+      next if executable_path.nil?
+
+      if File.exists? executable_path
+        puts "Warning: #{executable_path} exists, skipping."
+      else
+        system("echo \"#{file_content_for_command(command)}\" > #{executable_path}")
+        system("chmod +x #{executable_path}")
+      end
+    end
+
+    puts "Executable files have been created for you. Please edit them for your project's needs in #{Simply::COMMAND_EXECUTABLE_DIRECTORY}"
+  end
+
+  def executable_path
+    nil # this command has no corresponding executable file
+  end
+
+  private
+
+  def file_content_for_command(command)
+    command_string = command.command_string
+"#!/bin/bash
+
+#
+# Performs the #{command_string} step for the 'simply' executable.
+# Run from the project root with ./simply #{command_string}
+#
+
+# Replace the following line with the steps to perform #{command_string} for this project
+echo 'This project has no #{command_string} step.'
+"
+  end
 end
 
 class SetupCommand < Command
@@ -65,39 +121,7 @@ class SetupCommand < Command
   end
 
   def perform
-    install_dependencies
-    bundle_install
-    database_yml
-    setup_database
-
-    puts
-    puts 'Setup complete. As a next step, build the project with `./simply build` if necessary and run the tests: `./simply test`'
-  end
-
-  private
-
-  def install_dependencies
-    # In case your project has external dependencies (non-gem), implement
-    # the installation commands here (e.g. via `brew`)
-  end
-
-  def bundle_install
-    system('bundle install')
-  end
-
-  def database_yml
-    unless File.exists? 'config/database.yml'
-      FileUtils.cp 'config/database.example.yml', 'config/database.yml'
-      puts "Configure your database in 'config/database.yml', then re-run this command."
-    end
-  end
-
-  def setup_database
-    system('./bin/rake db:create')
-    system('./bin/rake db:schema:load')
-    system('RAILS_ENV=test ./bin/rake db:create')
-    system('RAILS_ENV=test ./bin/rake db:schema:load')
-    system('./bin/rake db:seed')
+    system(executable_path)
   end
 end
 
@@ -111,8 +135,7 @@ class BuildCommand < Command
   end
 
   def perform
-    # In case your projects needs a build step, implement here!
-    puts 'No build step is required for this project.'
+    system(executable_path)
   end
 end
 
@@ -126,7 +149,7 @@ class TestCommand < Command
   end
 
   def perform
-    system('rspec')
+    system(executable_path)
   end
 end
 
@@ -140,7 +163,7 @@ class RunCommand < Command
   end
 
   def perform
-    system('bin/rails s')
+    system(executable_path)
   end
 end
 
@@ -154,22 +177,22 @@ class DeployCommand < Command
   end
 
   def perform
-    environment = arguments.shift
-
-    puts "Deploying to #{environment}..."
-    system("cap #{environment} deploy")
+    system(executable_path)
   end
 end
 
 class Simply
   COMMAND_CLASSES = [
     HelpCommand,
+    InitCommand,
     SetupCommand,
     BuildCommand,
     TestCommand,
     RunCommand,
     DeployCommand
   ]
+
+  COMMAND_EXECUTABLE_DIRECTORY = './bin/simply/'
 
   def initialize(arguments)
     @arguments = arguments
