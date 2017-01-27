@@ -63,6 +63,20 @@ class HelpCommand < Command
   end
 end
 
+class VersionCommand < Command
+  def self.command_string
+    'version'
+  end
+
+  def usage
+    "version\t\t\tDisplays the version of the simply script"
+  end
+
+  def perform
+    puts "Simply version #{Simply::VERSION}"
+  end
+end
+
 class InitCommand < Command
   def self.command_string
     'init'
@@ -182,8 +196,11 @@ class DeployCommand < Command
 end
 
 class Simply
+  VERSION = '0.9.0'
+
   COMMAND_CLASSES = [
     HelpCommand,
+    VersionCommand,
     InitCommand,
     SetupCommand,
     BuildCommand,
