@@ -75,6 +75,10 @@ class VersionCommand < Command
   def perform
     puts "Simply version #{Simply::VERSION}"
   end
+
+  def executable_path
+    nil # this command has no corresponding executable file
+  end
 end
 
 class InitCommand < Command
@@ -196,7 +200,7 @@ class DeployCommand < Command
 end
 
 class Simply
-  VERSION = '0.9.0'
+  VERSION = '0.9.1'
 
   COMMAND_CLASSES = [
     HelpCommand,
