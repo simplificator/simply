@@ -43,7 +43,7 @@ class HelpCommand < Command
   end
 
   def usage
-    "help\t\t\tDisplays this message"
+    "help\t\t\tDisplays this message."
   end
 
   def perform
@@ -73,7 +73,7 @@ class VersionCommand < Command
   end
 
   def usage
-    "version\t\t\tDisplays the version of the simply script"
+    "version\t\t\tDisplays the version of the simply script."
   end
 
   def perform
@@ -91,7 +91,7 @@ class InitCommand < Command
   end
 
   def usage
-    "init\t\t\tInitializes this project for use with the simply script"
+    "init\t\t\tInitializes this project for use with the simply script."
   end
 
   def perform
@@ -139,7 +139,7 @@ class SetupCommand < Command
   end
 
   def usage
-    "setup\t\t\tSets up all the project's dependencies. Assumed: Running on OS X, postgres, rbenv installed."
+    "setup\t\t\tSets up all the project's dependencies. Assumed: Running on OS X, postgres, rbenv, brew installed."
   end
 
   def perform
@@ -153,7 +153,7 @@ class BuildCommand < Command
   end
 
   def usage
-    "build\t\t\tBuilds the project (compiling and all other necessary steps before running)"
+    "build\t\t\tBuilds the project (compiling and all other necessary steps before running)."
   end
 
   def perform
@@ -167,7 +167,7 @@ class TestCommand < Command
   end
 
   def usage
-    "test\t\t\tRuns the tests for this project"
+    "test\t\t\tRuns the tests for this project."
   end
 
   def perform
@@ -181,7 +181,7 @@ class RunCommand < Command
   end
 
   def usage
-    "run\t\t\tRuns the project"
+    "run\t\t\tRuns the project."
   end
 
   def perform
@@ -195,7 +195,7 @@ class DeployCommand < Command
   end
 
   def usage
-    "deploy <environment>\tDeploys the project on a specific environment"
+    "deploy <environment>\tDeploys the project on a specific environment."
   end
 
   def perform
