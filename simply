@@ -53,7 +53,11 @@ class HelpCommand < Command
   def perform
     puts 'Simply lets you perform all common tasks for this project from one convenient place:'
     puts
-    puts 'Usage: ./simply <command>'
+    puts 'Usage: bin/simply <command>'
+    puts
+    puts '  or with the simpli gem:'
+    puts
+    puts '       simply <command>'
     puts
     puts 'Available commands:'
 
@@ -124,7 +128,7 @@ class InitCommand < Command
 
 #
 # Performs the #{command_string} step for the 'simply' executable.
-# Run from the project root with ./simply #{command_string}
+# Run from the project root with bin/simply #{command_string}
 #
 
 # Replace the following line with the steps to perform #{command_string} for this project
@@ -197,7 +201,8 @@ class Simply
     DeployCommand
   ]
 
-  COMMAND_EXECUTABLE_DIRECTORY = './bin/simply/'
+  BASE_DIRECTORY = File.dirname File.expand_path __FILE__
+  COMMAND_EXECUTABLE_DIRECTORY = "#{BASE_DIRECTORY}/simply-executables/"
 
   def initialize(arguments)
     @arguments = arguments
