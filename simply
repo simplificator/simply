@@ -171,7 +171,6 @@ class TestCommand < Command
   end
 
   def perform
-    puts "PERFORM TEST #{executable_path}"
     system(executable_path)
   end
 end
