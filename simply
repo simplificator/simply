@@ -25,7 +25,11 @@ class Command
   end
 
   def perform
-    raise 'Implement this in subclass'
+    if Simply.did_init_run?
+      system(executable_path + " #{arguments.join(' ')}")
+    else
+      STDERR.puts 'Error: `simply init` has not been run!'
+    end
   end
 
   def executable_path
@@ -141,10 +145,6 @@ class SetupCommand < Command
   def usage
     "setup\t\t\tSets up all the project's dependencies. Assumed: Running on OS X, postgres, rbenv, brew installed."
   end
-
-  def perform
-    system(executable_path)
-  end
 end
 
 class BuildCommand < Command
@@ -154,10 +154,6 @@ class BuildCommand < Command
 
   def usage
     "build\t\t\tBuilds the project (compiling and all other necessary steps before running)."
-  end
-
-  def perform
-    system(executable_path)
   end
 end
 
@@ -169,10 +165,6 @@ class TestCommand < Command
   def usage
     "test\t\t\tRuns the tests for this project."
   end
-
-  def perform
-    system(executable_path)
-  end
 end
 
 class RunCommand < Command
@@ -182,10 +174,6 @@ class RunCommand < Command
 
   def usage
     "run\t\t\tRuns the project."
-  end
-
-  def perform
-    system(executable_path)
   end
 end
 
@@ -197,14 +185,10 @@ class DeployCommand < Command
   def usage
     "deploy <environment>\tDeploys the project on a specific environment."
   end
-
-  def perform
-    system(executable_path + " #{arguments.join(' ')}")
-  end
 end
 
 class Simply
-  VERSION = '0.9.3'
+  VERSION = '0.9.4'
 
   COMMAND_CLASSES = [
     HelpCommand,
@@ -222,6 +206,10 @@ class Simply
 
   def initialize(arguments)
     @arguments = arguments
+  end
+
+  def self.did_init_run?
+    File.exists? COMMAND_EXECUTABLE_DIRECTORY
   end
 
   def perform
