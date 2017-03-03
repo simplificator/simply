@@ -139,7 +139,7 @@ class SetupCommand < Command
   end
 
   def perform
-    system(executable_path)
+    system(executable_path + " #{arguments.join(' ')}")
   end
 end
 
@@ -153,7 +153,7 @@ class BuildCommand < Command
   end
 
   def perform
-    system(executable_path)
+    system(executable_path + " #{arguments.join(' ')}")
   end
 end
 
@@ -167,7 +167,7 @@ class TestCommand < Command
   end
 
   def perform
-    system(executable_path)
+    system(executable_path + " #{arguments.join(' ')}")
   end
 end
 
@@ -181,7 +181,7 @@ class RunCommand < Command
   end
 
   def perform
-    system(executable_path)
+    system(executable_path + " #{arguments.join(' ')}")
   end
 end
 
