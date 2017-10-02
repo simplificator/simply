@@ -25,6 +25,7 @@ class Command
   end
 
   def perform
+    make_file_executable
     if Simply.did_init_run?
       system(executable_path + " #{arguments.join(' ')}")
     else
@@ -34,6 +35,10 @@ class Command
 
   def executable_path
     "#{Simply::COMMAND_EXECUTABLE_DIRECTORY}#{self.class.command_string}"
+  end
+
+  def make_file_executable
+    FileUtils.chmod "+x", executable_path
   end
 
   protected
