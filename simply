@@ -64,6 +64,8 @@ class HelpCommand < Command
     Simply::COMMAND_CLASSES.each do |command_class|
       puts command_class.new(arguments).usage
     end
+
+    exit 1
   end
 
   def executable_path
